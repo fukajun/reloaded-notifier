@@ -1,0 +1,16 @@
+{
+  "name": "Reloaded Notify",
+  "manifest_version": 2,
+  "version": "0.1",
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "background": {
+    "scripts": ["eventPage.js"],
+    "persistent": false
+  },
+  "permissions": [
+    "notifications", "tabs"
+  ]
+}
