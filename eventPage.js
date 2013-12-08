@@ -1,4 +1,4 @@
-function notify(icon_url, title, message, timeout){
+function tabUpdateNotify(tab, icon_url, title, message, timeout){
   if(typeof timeout === 'undefined') timeout = 0;
 
   var popup = webkitNotifications.createNotification(icon_url, title, message);
@@ -8,12 +8,17 @@ function notify(icon_url, title, message, timeout){
       popup.close();
     }, timeout);
   }
+  popup.onclick = function() {
+    chrome.windows.update(tab.windowId, {focused: true})
+    chrome.tabs.update(tab.id, {active: true})
+  };
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-  var pattern = /localhost/i;
-  if(!tab.url.match(pattern)) {
-    //return;
+  var filter_url = localStorage['filter_url'] || '';
+  var pattern = filter_url;
+  if(filter_url.length != 0 && !tab.url.match(pattern)) {
+    return;
   }
 
   var status = changeInfo.status;
@@ -21,7 +26,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   var icon_url = tab.favIconUrl;
   var message = tab.title.replace("\n", '') + "\n" + tab.url.replace("\n", '');
   if( status == 'complete' || status == 'loading') {
-    var timeout = changeInfo.status != 'complete' ? 1000 : 5000
-    notify(icon_url, title, message, timeout);
+    var timeout = changeInfo.status != 'complete' ? 1000 : 15000
+    tabUpdateNotify(tab, icon_url, title, message, timeout);
   }
 });
