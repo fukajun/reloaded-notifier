@@ -25,8 +25,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   var title = status;
   var icon_url = tab.favIconUrl;
   var message = tab.title.replace("\n", '') + "\n" + tab.url.replace("\n", '');
-  if( status == 'complete' || status == 'loading') {
-    var timeout = changeInfo.status != 'complete' ? 1000 : 15000
-    tabUpdateNotify(tab, icon_url, title, message, timeout);
+  if( status == 'complete') {
+    tabUpdateNotify(tab, icon_url, title, message, 1000);
   }
 });
