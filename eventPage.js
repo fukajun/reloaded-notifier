@@ -14,10 +14,34 @@ function tabUpdateNotify(tab, icon_url, title, message, timeout){
   };
 }
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+function isMatchUrlPattern(url) {
   var filter_url = localStorage['filter_url'] || '';
   var pattern = filter_url;
-  if(filter_url.length != 0 && !tab.url.match(pattern)) {
+  if(filter_url.length != 0 && !url.match(pattern)) {
+    return false;
+  } else {
+    return true;
+  }
+}
+function updateExtensionIcon(){
+  chrome.tabs.getSelected(null, function(tab) {
+    var image_name = '';
+    if(isMatchUrlPattern(tab.url)) {
+      imageName = 'icon_on.png';
+    } else {
+      imageName = 'icon_off.png';
+    }
+    chrome.browserAction.setIcon({path: imageName});
+  });
+}
+
+chrome.tabs.onSelectionChanged.addListener(function(tabId, changeInfo){
+  updateExtensionIcon();
+});
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+  updateExtensionIcon();
+  if(!isMatchUrlPattern(tab.url)) {
     return;
   }
 
