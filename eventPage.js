@@ -26,11 +26,7 @@ function isMatchUrlPattern(url) {
 function updateExtensionIcon(){
   chrome.tabs.getSelected(null, function(tab) {
     var image_name = '';
-    if(isMatchUrlPattern(tab.url)) {
-      imageName = 'icon_on.png';
-    } else {
-      imageName = 'icon_off.png';
-    }
+    imageName = isMatchUrlPattern(tab.url) ? 'icon_on.png' : 'icon_off.png';
     chrome.browserAction.setIcon({path: imageName});
   });
 }
