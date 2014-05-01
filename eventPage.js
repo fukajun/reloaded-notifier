@@ -2,10 +2,10 @@ function tabUpdateNotify(tab, icon_url, title, message, timeout){
   if(typeof timeout === 'undefined') timeout = 0;
 
   var popup = webkitNotifications.createNotification(icon_url, title, message);
+  popup.show();
   if(timeout != 0) {
-    popup.show();
     setTimeout(function(){
-      popup.close();
+      popup.cancel();
     }, timeout);
   }
   popup.onclick = function() {
@@ -45,7 +45,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   var title = status;
   var icon_url = tab.favIconUrl;
   var message = tab.title.replace("\n", '') + "\n" + tab.url.replace("\n", '');
-  if( status == 'complete') {
-    tabUpdateNotify(tab, icon_url, title, message, 1000);
+  var notify_timeout = localStorage['notify_timeout'] || 10000;
+  var loading_event = localStorage['loading_event'] || 'off';
+  var complete_event = localStorage['complete_event'] || 'off';
+  if( complete_event == 'on' && status == 'complete') {
+    tabUpdateNotify(tab, icon_url, title, message, notify_timeout);
+  }
+  if( loading_event == 'on' && status == 'loading') {
+    tabUpdateNotify(tab, icon_url, title, message, notify_timeout);
   }
 });
