@@ -1,17 +1,33 @@
+var tabInfoList = {}
 function tabUpdateNotify(tab, icon_url, title, message, timeout){
   if(typeof timeout === 'undefined') timeout = 0;
 
-  var popup = webkitNotifications.createNotification(icon_url, title, message);
-  popup.show();
-  if(timeout != 0) {
-    setTimeout(function(){
-      popup.cancel();
-    }, timeout);
+  var tempolaryId = new Date().getTime() + "";
+  var options = {
+    type: "basic",
+    title: title,
+    message: message,
+    iconUrl: 'icon_on.png'
   }
-  popup.onclick = function() {
+  var onclicked = function(id) {
+    tab = tabInfoList[id]
     chrome.windows.update(tab.windowId, {focused: true})
     chrome.tabs.update(tab.id, {active: true})
   };
+  var oncreated = function(id) {
+    tabInfoList[id] = tab
+    if(timeout != 0) {
+      setTimeout(function(){
+        chrome.notifications.clear(tempolaryId, function(){});
+      }, timeout);
+    }
+  }
+  var onclosed = function(id) {
+    delete tabInfoList[id]
+  }
+  chrome.notifications.create(tempolaryId, options, oncreated);
+  chrome.notifications.onClicked.addListener(onclicked);
+  chrome.notifications.onClosed.addListener(onclosed);
 }
 
 function isMatchUrlPattern(url) {
